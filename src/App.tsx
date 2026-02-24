@@ -5,10 +5,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, ShieldAlert, Lock, ArrowRight, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { ChevronRight, ShieldAlert, Lock, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { GoogleGenAI } from "@google/genai";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -58,54 +57,14 @@ const QUESTIONS: Question[] = [
   }
 ];
 
+// Static Hero Image URL - Using a dramatic photo of a couple
+const HERO_IMAGE_URL = "https://images.unsplash.com/photo-1518104593124-ac2e82a5eb9d?q=80&w=1280&h=720&auto=format&fit=crop&bg=black";
+
 export default function App() {
   const [step, setStep] = useState<'intro' | 'quiz' | 'calculating' | 'result'>('intro');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [progress, setProgress] = useState(0);
-  const [heroImage, setHeroImage] = useState<string | null>(null);
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-
-  useEffect(() => {
-    const generateHeroImage = async () => {
-      if (heroImage || isGeneratingImage) return;
-      
-      setIsGeneratingImage(true);
-      try {
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash-image',
-          contents: {
-            parts: [
-              {
-                text: 'Ilustração dramática em estilo noir, desenho digital, uma pessoa em sombras fazendo sinal de silêncio com o dedo nos lábios, cores preto e vermelho escuro, atmosfera de mistério e segredo, alta qualidade, arte conceitual.',
-              },
-            ],
-          },
-          config: {
-            imageConfig: {
-              aspectRatio: "16:9",
-            },
-          },
-        });
-
-        for (const part of response.candidates?.[0]?.content?.parts || []) {
-          if (part.inlineData) {
-            setHeroImage(`data:image/png;base64,${part.inlineData.data}`);
-            break;
-          }
-        }
-      } catch (error) {
-        console.error('Error generating image:', error);
-      } finally {
-        setIsGeneratingImage(false);
-      }
-    };
-
-    if (step === 'intro') {
-      generateHeroImage();
-    }
-  }, [step]);
 
   const handleStart = () => setStep('quiz');
 
@@ -160,23 +119,20 @@ export default function App() {
                 <span className="italic text-red-600">SILÊNCIO</span>
               </h1>
 
-              {/* Hero Image Section */}
-              <div className="relative w-full aspect-video rounded-2xl overflow-hidden glass-card border-red-500/20 my-6">
-                {heroImage ? (
-                  <motion.img
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    src={heroImage}
-                    alt="Traição em Silêncio"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-900/50 space-y-3">
-                    <Loader2 className="text-red-500 animate-spin" size={32} />
-                    <span className="text-xs text-zinc-500 uppercase tracking-widest">Preparando Análise Visual...</span>
+              {/* Hero Image Section - Now Static */}
+              <div className="relative w-full aspect-video rounded-2xl overflow-hidden glass-card border-red-500/20 my-6 shadow-2xl shadow-red-950/20">
+                <img
+                  src={HERO_IMAGE_URL}
+                  alt="Traição em Silêncio"
+                  className="w-full h-full object-cover grayscale brightness-50 contrast-125"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent opacity-80" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 border border-white/10 rounded-full flex items-center justify-center backdrop-blur-sm bg-black/20">
+                    <Lock className="text-red-500/80" size={24} />
                   </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent opacity-60" />
+                </div>
               </div>
               
               <p className="text-zinc-400 text-lg md:text-xl max-w-md mx-auto leading-relaxed">
