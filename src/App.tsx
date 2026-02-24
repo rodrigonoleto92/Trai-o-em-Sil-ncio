@@ -57,20 +57,18 @@ const QUESTIONS: Question[] = [
   }
 ];
 
-// Static Hero Image URL - Using a dramatic photo of a couple
-const HERO_IMAGE_URL = "https://images.unsplash.com/photo-1518104593124-ac2e82a5eb9d?q=80&w=1280&h=720&auto=format&fit=crop&bg=black";
+// Static Hero Image URL - Using a high-impact photo representing distrust and betrayal
+const HERO_IMAGE_URL = "https://images.unsplash.com/photo-1621252179027-94459d278660?q=80&w=1280&h=720&auto=format&fit=crop&bg=black";
 
 export default function App() {
   const [step, setStep] = useState<'intro' | 'quiz' | 'calculating' | 'result'>('intro');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [progress, setProgress] = useState(0);
 
   const handleStart = () => setStep('quiz');
 
   const handleAnswer = (answer: string) => {
-    const newAnswers = { ...answers, [QUESTIONS[currentQuestionIndex].id]: answer };
-    setAnswers(newAnswers);
+    setAnswers(prev => ({ ...prev, [QUESTIONS[currentQuestionIndex].id]: answer }));
 
     if (currentQuestionIndex < QUESTIONS.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
@@ -80,16 +78,14 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (step === 'quiz') {
-      setProgress(((currentQuestionIndex) / QUESTIONS.length) * 100);
-    } else if (step === 'calculating') {
-      setProgress(100);
+    if (step === 'calculating') {
       const timer = setTimeout(() => setStep('result'), 3500);
       return () => clearTimeout(timer);
     }
-  }, [currentQuestionIndex, step]);
+  }, [step]);
 
   const currentQuestion = QUESTIONS[currentQuestionIndex];
+  const progress = ((currentQuestionIndex + 1) / QUESTIONS.length) * 100;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 font-sans">
@@ -164,7 +160,7 @@ export default function App() {
 
           {step === 'quiz' && (
             <motion.div
-              key="quiz"
+              key={`question-${currentQuestionIndex}`}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -179,12 +175,12 @@ export default function App() {
                     {Math.round(progress)}%
                   </span>
                 </div>
-                <div className="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
+                <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
                   <motion.div
                     className="h-full bg-red-600"
-                    initial={{ width: 0 }}
+                    initial={{ width: `${((currentQuestionIndex) / QUESTIONS.length) * 100}%` }}
                     animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
                   />
                 </div>
               </div>
@@ -298,6 +294,15 @@ export default function App() {
 
               <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-sm text-red-200 italic">
                 "Você merece a verdade, por mais dolorosa que ela seja."
+              </div>
+
+              <div className="flex flex-col items-center gap-1 py-2">
+                <span className="text-zinc-500 text-sm line-through">De R$ 47,00</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-zinc-400 text-sm font-medium">Por apenas</span>
+                  <span className="text-4xl font-bold text-white">R$ 17,00</span>
+                </div>
+                <span className="text-[10px] text-green-500 font-bold uppercase tracking-widest animate-pulse">Oferta por tempo limitado</span>
               </div>
 
               <button
