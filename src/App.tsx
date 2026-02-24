@@ -306,7 +306,7 @@ export default function App() {
               </div>
 
               <button
-                onClick={() => window.location.href = 'https://checkout.exemplo.com'} // Placeholder for user's checkout
+                onClick={() => window.location.href = 'https://pay.cakto.com.br/pg4w8pm_782434'} 
                 className="w-full bg-red-600 hover:bg-red-500 text-white py-5 rounded-xl font-bold text-xl shadow-lg shadow-red-900/40 transition-all hover:scale-[1.02] active:scale-95 flex flex-col items-center justify-center gap-1"
               >
                 <span className="flex items-center gap-2">
